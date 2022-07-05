@@ -102,6 +102,10 @@ def getLinearRegressionGraph(df: DataFrame, options_list, dependent_var, paramet
     x_new = np.array(parameters_list).reshape(-1,1)
     y_new = regr.predict(x_new)
 
+    st.write("""
+        ### Equation
+        Y = {}X + ({})
+    """.format(regr.coef_[0][0], regr.intercept_[0]))
 
     st.write("""
         ### Result
@@ -166,6 +170,7 @@ def getPolynomialRegressionGraph(df, independent_var, dependent_var, parameter, 
     plt.title('Polynomial Regression')
     plt.xlabel(independent_var)
     plt.ylabel(dependent_var)
+
 
     plt.show()
     st.set_option('deprecation.showPyplotGlobalUse', False)
