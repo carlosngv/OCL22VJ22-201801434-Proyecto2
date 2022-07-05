@@ -1,3 +1,5 @@
+# Link app: https://carlosngv-ocl22vj22-201801434-proyecto2-main-jldbbc.streamlitapp.com/
+
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -8,12 +10,45 @@ from pandas.core.frame import DataFrame
 from sklearn import datasets
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error,mean_squared_error
+from sklearn.metrics import mean_absolute_error,mean_squared_error, accuracy_score
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.tree import DecisionTreeClassifier, plot_tree # Import Decision Tree Classifier
+
+def getDecisionTreeGraph(df: DataFrame, target):
+    # Cambiando strings a 0s y 1s
+    df = pd.get_dummies(data=df, drop_first=True)
+
+    # Seleccionando variables
+    X = df.drop(columns=target)
+    y = df[target]
+
+    # Training data... 70% training and 30% test
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
+
+    # Training model
+    model = DecisionTreeClassifier(max_depth=4)
+    model.fit(X=X_train, y=y_train)
+
+    y_pred = model.predict(X_test)
+
+    accuracy = accuracy_score(y_test, y_pred)
+
+
+
+    # Visualization
+    st.write("### Decision Tree Visualization")
+    st.write('El árbol de decisión generado con respecto a la variable- "{}" es el siguiente:'.format(target))
+    plt.figure(figsize=(14, 8))
+    plot_tree(decision_tree=model, feature_names=X.columns, filled=True, fontsize=10)
+    plt.show()
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+    st.pyplot()
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+
+    st.write("### Accuracy")
+    st.write("La puntuación de la clasificación de la precisión es de: {}.".format(accuracy))
 
 def getLinearRegressionGraph(df: DataFrame, options_list, dependent_var, parameters):
-
-
     # Parameters
     parameters_df = pd.DataFrame.from_dict(parameters, orient='index',
                        columns=['Value'])
@@ -188,6 +223,13 @@ def polynomial_regression(data: DataFrame):
     except:
         st.warning("Type a valid parameter.")
 
+def decision_tree(data: DataFrame):
+    target = st.selectbox('Select the target variable: ', data.columns)
+    try:
+        getDecisionTreeGraph(data, target)
+    except:
+        st.warning("Something's wrong...")
+
 def main_app():
 
     # Sidebar option tuple
@@ -236,6 +278,7 @@ def main_app():
             polynomial_regression(data)
         elif sidebar_selectbox == 'Decision Tree Classification':
             st.header('Decision Tree Classification Report')
+            decision_tree(data)
         elif sidebar_selectbox == 'Neural Network':
             st.header('Neural Network Report')
 
